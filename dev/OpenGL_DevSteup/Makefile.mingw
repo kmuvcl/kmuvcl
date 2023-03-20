@@ -1,0 +1,8 @@
+# Directories containing C headers
+INCLUDE_DIRS = -I"C:\msys64\ucrt64\include"
+# Directoreis containing import libraries. 
+LIB_DIRS = -L"C:\msys64\ucrt64\lib"
+LDFLAGS = -lopengl32 -lglew32 -lglfw3 ${LIB_DIRS}
+
+all:
+	g++ -std=c++11 main.cpp -o hello ${LDFLAGS}

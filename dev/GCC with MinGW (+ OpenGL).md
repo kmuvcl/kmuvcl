@@ -177,47 +177,110 @@ Hello World
 
 이제 Windows native 환경에서 GCC를 써서 OpenGL을 개발해 보도록 하자. 
 
-국민대 컴퓨터그래픽스 교과목의 github에서 다음과 같이 소스코드를 받는다.
+다음과 같이 GLEW + GLFW3를 이용한 OpenGL 프로그램을 작성한다.
 
-```shell
-git clone https://github.com/kmuvcl/2023_graphics
+```cpp
+///// main.cpp
+///// OpenGL 3+, GLEW, GLFW3
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <iostream>
+
+int main(void)
+{
+  GLFWwindow* window;
+
+  // Initialize GLFW library
+  if (!glfwInit())
+    return -1;
+
+  // Create a GLFW window containing a OpenGL context
+  window = glfwCreateWindow(500, 500, "Hello OpenGL", NULL, NULL);
+  if (!window)
+  {
+    glfwTerminate();
+    return -1;
+  }
+
+  // Make the current OpenGL context as one in the window
+  glfwMakeContextCurrent(window);
+
+  // Initialize GLEW library
+  if (glewInit() != GLEW_OK)
+    std::cout << "GLEW Init Error!" << std::endl;
+
+  // Print out the OpenGL version supported by the graphics card in my PC
+  std::cout << glGetString(GL_VERSION) << std::endl;
+
+  // Init OpenGL
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+  glClearColor(0.5, 0.5, 0.5, 1.0);
+
+
+  // Loop until the user closes the window
+  while (!glfwWindowShouldClose(window))
+  {
+    // Render here
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Swap front and back buffers
+    glfwSwapBuffers(window);
+
+    // Poll for and process events
+    glfwPollEvents();
+  }
+
+  glfwTerminate();
+
+  return 0;
+}
 ```
 
-하위 디렉토리 중 `cd 2023_graphics/lab/00.OpenGL_DevSetup/` 디렉토리로 이동한다. 
 
-```shell
-cd 2023_graphics/lab/00.OpenGL_DevSetup/
-```
+## Makefile 작성
 
-## Makefile 수정 
-
-MSYS2 디렉토리 구조나 파일명이 Linux 환경과 조금 다르기 때문에 Linux용 `Makefile`을 다음과 같이 수정해서 써야 한다.
-* MSYS2의 include, lib 디렉토리 위치를 컴파일러가 인지할 수 있도록 `Makefile` 파일에 명시한다.
+MSYS2 디렉토리 구조나 파일명이 Linux 환경과 조금 다르기 때문에 Linux용 `Makefile`이 아닌 다음과 같은 `Makefile.mingw` 파일을 작성하도록 하자.
+* MSYS2의 include, lib 디렉토리 위치를 컴파일러가 인지할 수 있도록 `Makefile.mingw` 파일에 명시한다.
 * MSYS2의 라이브러리 파일명이 리눅스 환경과 다르기 때문에 라이브러리 파일 링크 부분도 이에 맞게 수정한다.
 
 ```Makefile
 # Directories containing C headers
 INCLUDE_DIRS = -I"C:\msys64\ucrt64\include"
-
-# Directories containing import libraries. Edit to match path containing freeglut libs.
+# Directoreis containing import libraries. 
 LIB_DIRS = -L"C:\msys64\ucrt64\lib"
-#LDFLAGS = -lGL -lGLEW -lglfw
 LDFLAGS = -lopengl32 -lglew32 -lglfw3 ${LIB_DIRS}
 
 all:
-    g++ -std=c++11 main.cpp -o hello ${LDFLAGS}
+	g++ -std=c++11 main.cpp -o hello ${LDFLAGS}
 ```
 
-`Makefile`을 수정한 후, `make` 명령어를 이용해 컴파일해 본다. 쉘에서 `./hello.exe`를 수행하면 회색 OpenGL 창이 떠야 정상이다.  
+`make` 명령어로 `Makefile.mingw`를 이용해 프로그램을 빌드해 본다.
 
-`Makefile`을 제대로 수정했음에도 에러가 뜬다면 다음을 의심해 보도록 하자.
-* MSYS2 설치 디렉토리가 `C:/msys64`가 아닌 경우, 자신의 설치 경로를 `Makefile`에 반영한다.
+```shell
+make -f Makefile.mingw
+```
+
+빌드가 성공적으로 수행되었다면, 다음을 쉘에서 수행해 보자.
+
+```shell
+./hello.exe
+```
+
+아래와 같이 회색 OpenGL 창이 뜨면 정상이다.  
+
+![./Hello_OpenGL_mingw.png](./Hello_OpenGL_mingw.png)
+
+`make`을 제대로 수정했음에도 에러가 뜬다면 다음을 의심해 보도록 하자.
+* MSYS2 설치 디렉토리가 `C:/msys64`가 아닌 경우, 자신의 설치 경로를 `Makefile.mingw`에 반영한다.
 * OpenGL 개발환경이 제대로 설치되었는지 확인하자.
 
 
 ## Assimp 설치
 
-컴퓨터그래픽스 교과목 과제 중 [assimp](https://github.com/assimp/assimp)를 이용하는 경우가 있다. mingw-w64에서 아래와 같은 방법으로 assimp 패키지를 깔도록 한다. 
+그래픽스 프로젝트 중 [assimp](https://github.com/assimp/assimp)를 이용하는 경우가 있다. mingw-w64에서 아래와 같은 방법으로 assimp 패키지를 깔도록 한다. 
 
 ```shell
 pacman -S mingw-w64-ucrt-x86_64-assimp
