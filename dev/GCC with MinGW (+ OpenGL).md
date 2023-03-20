@@ -273,7 +273,7 @@ make -f Makefile.mingw
 
 ![./Hello_OpenGL_mingw.png](./Hello_OpenGL_mingw.png)
 
-`make`을 제대로 수정했음에도 에러가 뜬다면 다음을 의심해 보도록 하자.
+`make` 명령어로 빌드를 수행할 때 에러가 발생한다면 다음을 의심해 보도록 하자.
 * MSYS2 설치 디렉토리가 `C:/msys64`가 아닌 경우, 자신의 설치 경로를 `Makefile.mingw`에 반영한다.
 * OpenGL 개발환경이 제대로 설치되었는지 확인하자.
 
